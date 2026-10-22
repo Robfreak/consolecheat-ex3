@@ -38,6 +38,7 @@ import {
   type Vec,
 } from "./pad.ts";
 import { DRIFT_DEMO_MS, frameFromSim, scriptedBias, stickFromPointer } from "./sim.ts";
+import { formatConnectionStatus } from "./status.ts";
 
 type Theme = "light" | "dark";
 type Page = "home" | "impressum" | "datenschutz";
@@ -52,7 +53,6 @@ type Model = {
   leftDrift: DriftReading;
   rightDrift: DriftReading;
   deviceId: string;
-  deviceMapping: string;
   padCount: number;
   padIndex: number;
   padIndexes: number[];
@@ -174,7 +174,6 @@ function zeroModel(demo: boolean): Model {
     leftDrift: readDrift(emptyDrift()),
     rightDrift: readDrift(emptyDrift()),
     deviceId: "",
-    deviceMapping: "",
     padCount: 0,
     padIndex: -1,
     padIndexes: [],
@@ -384,7 +383,6 @@ export function App() {
       let rightMemory: DriftMemory;
       let live = false;
       let deviceId = "";
-      let deviceMapping = "";
       let padIndexes: number[] = [];
       let padIndex = -1;
       let canVibrate = false;
@@ -423,7 +421,6 @@ export function App() {
           padIndex = pad.index;
           activeIndex.current = pad.index;
           deviceId = pad.id;
-          deviceMapping = pad.mapping;
           canVibrate = canRumble(pad);
           if (hardwareDrift.current.padIndex !== pad.index) {
             hardwareDrift.current = { left: emptyDrift(), right: emptyDrift(), padIndex: pad.index };
@@ -452,7 +449,6 @@ export function App() {
         leftDrift: readDrift(leftMemory),
         rightDrift: readDrift(rightMemory),
         deviceId,
-        deviceMapping,
         padCount: padIndexes.length,
         padIndex,
         padIndexes,
@@ -684,11 +680,12 @@ export function App() {
             ) : (
               <div className="mt-4 flex flex-col gap-4">
                 <p className="text-sm text-muted" data-testid="status">
-                  {model.simulated
-                    ? t.simName
-                    : fill(t.connected, { name: kindName(t, model.frame.kind) })}
-                  {model.simulated ? "" : ` · ${profileName(t, model.frame.profile)}`}
-                  {model.deviceMapping ? ` · ${model.deviceMapping}` : ""}
+                  {formatConnectionStatus({
+                    simulated: model.simulated,
+                    simName: t.simName,
+                    connected: fill(t.connected, { name: kindName(t, model.frame.kind) }),
+                    profileLabel: profileName(t, model.frame.profile),
+                  })}
                 </p>
 
                 {!model.simulated && model.padCount > 1 ? (
