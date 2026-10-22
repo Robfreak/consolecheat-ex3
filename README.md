@@ -25,7 +25,7 @@ If the browser does not report `mapping: "standard"`, a Sony pad is read with th
 No controller is required.
 
 - Open <https://robfreak.github.io/consolecheat-ex3/?demo=1>, or press **Testmodus** on the page. The address gains `?demo=1`. Hardware is ignored until Testmodus is turned off.
-- Keyboard: left stick `W A S D`, right stick arrow keys, triangle `I`, square `J`, cross `K`, circle `L`, L1 `Q`, R1 `E`, hold L2 `1`, hold R2 `2`, Share/Create `3`, Options `4`, L3 `Z`, R3 `X`, D-pad `T F G H`, PS `P`, touchpad space.
+- Keyboard: left stick `W A S D`, right stick arrow keys, triangle `I`, square `J`, cross `K`, circle `L`, L1 `Q`, R1 `E`, hold L2 `1`, hold R2 `2`, Share/Create `3`, Options `4`, L3 `Z`, R3 `X`, D-pad `T F G H`, PS `P`, touchpad space. Holding those keys does not scroll the page. Ctrl, Alt, and Meta stay with the browser, so Ctrl+F, Ctrl+P, and Ctrl+S still work.
 - Mouse: drag inside a stick field, or hold a button on the picture or in the list.
 - **Stick-Drift simulieren** eases the left stick to a rest offset above the drift line and leaves the right stick under it. The picture and the drift flag use the same code as a physical pad.
 

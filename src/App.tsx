@@ -13,7 +13,9 @@ import {
   type DriftReading,
 } from "./drift.ts";
 import { ControllerGraphic } from "./graphic.tsx";
+import { pulseActuator } from "./haptics.ts";
 import { Mark, MoonIcon, SunIcon } from "./icons.tsx";
+import { applySimKeyDown, shouldRunInputLoop } from "./input.ts";
 import { LegalPage } from "./legal.tsx";
 import {
   RTL,
@@ -35,13 +37,7 @@ import {
   type Profile,
   type Vec,
 } from "./pad.ts";
-import {
-  DRIFT_DEMO_MS,
-  HANDLED_KEYS,
-  frameFromSim,
-  scriptedBias,
-  stickFromPointer,
-} from "./sim.ts";
+import { DRIFT_DEMO_MS, frameFromSim, scriptedBias, stickFromPointer } from "./sim.ts";
 
 type Theme = "light" | "dark";
 type Page = "home" | "impressum" | "datenschutz";
@@ -222,17 +218,16 @@ async function rumble(pad: Gamepad): Promise<"ok" | "no"> {
       /* Firefox and some pads reject the effect name. */
     }
   }
-  const pulse = (pad as Gamepad & { hapticActuators?: { pulse?: (value: number, duration: number) => Promise<unknown> }[] })
-    .hapticActuators?.[0]?.pulse;
-  if (pulse) {
-    try {
-      await pulse(0.7, 500);
-      return "ok";
-    } catch {
-      return "no";
-    }
+  const haptic = (pad as Gamepad & { hapticActuators?: { pulse?: (value: number, duration: number) => Promise<unknown> }[] })
+    .hapticActuators?.[0];
+  const pulsed = pulseActuator(haptic, 0.7, 500);
+  if (!pulsed) return "no";
+  try {
+    await pulsed;
+    return "ok";
+  } catch {
+    return "no";
   }
-  return "no";
 }
 
 function kindName(t: Copy, kind: Kind): string {
@@ -268,12 +263,6 @@ function buttonLabel(t: Copy, id: ButtonId): string {
   if (id === "r2") return "R2";
   if (id === "l3") return "L3";
   return "R3";
-}
-
-function typingTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName;
-  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable;
 }
 
 export function App() {
@@ -333,12 +322,20 @@ export function App() {
   useEffect(() => {
     const sim = simRef.current;
     function onKeyDown(event: KeyboardEvent) {
-      if (!demoRef.current || pageRef.current !== "home" || event.repeat || typingTarget(event.target)) return;
-      if (!HANDLED_KEYS.has(event.code)) return;
-      const tag = event.target instanceof HTMLElement ? event.target.tagName : "";
-      if ((tag === "BUTTON" || tag === "A" || tag === "SUMMARY") && (event.code === "Space" || event.code === "Enter")) return;
-      event.preventDefault();
-      sim.keys.add(event.code);
+      const target = event.target instanceof HTMLElement ? event.target : null;
+      applySimKeyDown(
+        {
+          code: event.code,
+          repeat: event.repeat,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          altKey: event.altKey,
+          target,
+          preventDefault: () => event.preventDefault(),
+        },
+        sim.keys,
+        demoRef.current && pageRef.current === "home",
+      );
     }
     function onKeyUp(event: KeyboardEvent) {
       sim.keys.delete(event.code);
@@ -362,8 +359,23 @@ export function App() {
   useEffect(() => {
     if (page !== "home") return;
     let raf = 0;
+    let running = false;
     let idle = false;
+
+    const stop = () => {
+      cancelAnimationFrame(raf);
+      running = false;
+      if (!idle) {
+        setModel(zeroModel(false));
+        idle = true;
+      }
+    };
+
     const tick = () => {
+      if (!demoOn && !shouldRunInputLoop(false, connectedPads().length)) {
+        stop();
+        return;
+      }
       const sim = simRef.current;
       const supported = typeof navigator.getGamepads === "function";
       const secure = window.isSecureContext;
@@ -453,8 +465,31 @@ export function App() {
       idle = idleNow;
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+
+    const arm = () => {
+      if (running) return;
+      running = true;
+      idle = false;
+      raf = requestAnimationFrame(tick);
+    };
+
+    const onConnect = () => arm();
+    const onDisconnect = () => {
+      if (!demoOn && connectedPads().length === 0) stop();
+    };
+
+    window.addEventListener("gamepadconnected", onConnect);
+    window.addEventListener("gamepaddisconnected", onDisconnect);
+    const present = demoOn ? 0 : connectedPads().length;
+    if (shouldRunInputLoop(demoOn, present)) arm();
+    else setModel(zeroModel(false));
+
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf);
+      window.removeEventListener("gamepadconnected", onConnect);
+      window.removeEventListener("gamepaddisconnected", onDisconnect);
+    };
   }, [demoOn, profileOverride, page]);
 
   useEffect(() => {
