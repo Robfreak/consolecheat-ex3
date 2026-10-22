@@ -730,8 +730,8 @@ export function App() {
                 <div className="panel rounded-xl p-4 sm:p-6">
                   <h3 className="font-display text-xl font-semibold tracking-tight">{t.triggersHeading}</h3>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <TriggerMeter label="L2" value={model.frame.buttons.l2} testId="l2-bar" />
-                    <TriggerMeter label="R2" value={model.frame.buttons.r2} testId="r2-bar" />
+                    <TriggerMeter label="L2" value={model.frame.buttons.l2} testId="l2-bar" lang={lang} />
+                    <TriggerMeter label="R2" value={model.frame.buttons.r2} testId="r2-bar" lang={lang} />
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <button type="button" data-testid="vibrate" onClick={() => void onVibrate()} className={pillClass(true)}>
@@ -926,13 +926,13 @@ function ButtonCell({
   );
 }
 
-function TriggerMeter({ label, value, testId }: { label: string; value: number; testId: string }) {
+function TriggerMeter({ label, value, testId, lang }: { label: string; value: number; testId: string; lang: string }) {
   const pct = Math.round(Math.max(0, Math.min(1, value)) * 100);
   return (
     <div>
       <div className="flex items-baseline justify-between text-sm">
         <span className="font-medium">{label}</span>
-        <span className="tabular-nums text-muted">{formatPercent(value)} %</span>
+        <span className="tabular-nums text-muted">{formatPercent(value, lang)} %</span>
       </div>
       <div
         className="mt-2 h-4 overflow-hidden rounded-full bg-bg"
@@ -1014,7 +1014,7 @@ function StickPanel({
         </div>
         <div className="flex justify-between gap-3" data-testid={`${testId}-amount`}>
           <dt>{t.amount}</dt>
-          <dd dir="ltr">{formatPercent(drift.magnitude)} %</dd>
+          <dd dir="ltr">{formatPercent(drift.magnitude, lang)} %</dd>
         </div>
       </dl>
     </div>

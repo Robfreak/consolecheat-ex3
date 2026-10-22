@@ -50,8 +50,12 @@ export function formatAxis(n: number, lang: string): string {
   return body;
 }
 
-export function formatPercent(value: number): string {
-  return (Math.round(value * 1000) / 10).toFixed(1);
+export function formatPercent(value: number, lang = "en"): string {
+  return (Math.round(value * 1000) / 10).toLocaleString(lang, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+    useGrouping: false,
+  });
 }
 
 /**

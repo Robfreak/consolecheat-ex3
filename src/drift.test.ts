@@ -5,6 +5,7 @@ import {
   DRIFT_THRESHOLD,
   emptyDrift,
   formatAxis,
+  formatPercent,
   readDrift,
   settleDrift,
   stickMagnitude,
@@ -109,5 +110,7 @@ test("axis formatting keeps a sign and three decimals", () => {
   assert.equal(formatAxis(-0.06, "en"), "-0.060");
   assert.equal(formatAxis(0, "en"), "0.000");
   assert.equal(formatAxis(0.18, "de"), "+0,180");
+  assert.equal(formatPercent(0.1897, "de"), "19,0");
+  assert.equal(formatPercent(0.05, "en"), "5.0");
   assert.equal(DEADZONE, 0.1);
 });
