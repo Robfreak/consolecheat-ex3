@@ -44,6 +44,8 @@ export type Copy = {
   privacyClaim: string;
   unofficial: string;
   footerNote: string;
+  moreTools: string;
+  screenTestLead: string;
   themeDark: string;
   themeLight: string;
   language: string;
@@ -132,6 +134,8 @@ const en: Text = {
   privacyClaim: "Nothing is stored or sent. Buttons and sticks stay in this tab.",
   unofficial: "Unofficial. Not Sony.",
   footerNote: "Nothing is paid here. This site is not Sony.",
+  moreTools: "More tools",
+  screenTestLead: "Check a TV or monitor:",
   themeDark: "Dark",
   themeLight: "Light",
   language: "Language",
@@ -215,6 +219,8 @@ const de: Text = {
   privacyClaim: "Keine Daten werden gespeichert oder gesendet. Tasten und Sticks bleiben in diesem Tab.",
   unofficial: "Inoffiziell. Nicht von Sony.",
   footerNote: "Bezahlt wird nirgends. Diese Seite ist nicht Sony.",
+  moreTools: "Weitere Werkzeuge",
+  screenTestLead: "Fernseher oder Monitor prüfen:",
   themeDark: "Dunkel",
   themeLight: "Hell",
   language: "Sprache",

@@ -39,6 +39,7 @@ import {
 } from "./pad.ts";
 import { DRIFT_DEMO_MS, frameFromSim, scriptedBias, stickFromPointer } from "./sim.ts";
 import { formatConnectionStatus } from "./status.ts";
+import { OTHER_TOOLS, SCREEN_TEST } from "./tools.ts";
 
 type Theme = "light" | "dark";
 type Page = "home" | "impressum" | "datenschutz";
@@ -626,6 +627,16 @@ export function App() {
             <p className="panel rounded-xl px-4 py-4 text-base font-medium leading-relaxed text-fg">{t.privacyClaim}</p>
           </div>
           <p className="mt-4 text-sm text-subtle">{t.unofficial}</p>
+          <p className="mt-3 text-sm text-muted">
+            {t.screenTestLead}{" "}
+            <a
+              href={SCREEN_TEST.href}
+              data-testid="screen-test-link"
+              className="text-steel underline-offset-4 hover:underline"
+            >
+              {SCREEN_TEST.label}
+            </a>
+          </p>
 
           <section className="mt-10" aria-labelledby="live-heading">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -889,6 +900,20 @@ export function App() {
             <a href="#datenschutz" className="text-steel underline-offset-4 hover:underline">
               Datenschutz
             </a>
+          </nav>
+          <nav aria-labelledby="more-tools-heading" data-testid="more-tools">
+            <p id="more-tools-heading" className="text-fg">
+              {t.moreTools}
+            </p>
+            <ul className="mt-1 flex list-none flex-wrap gap-x-4 gap-y-1 p-0">
+              {OTHER_TOOLS.map((tool) => (
+                <li key={tool.id}>
+                  <a href={tool.href} className="text-steel underline-offset-4 hover:underline">
+                    {tool.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </nav>
           <p>{t.freeClaim}</p>
           <p>{t.privacyClaim}</p>
